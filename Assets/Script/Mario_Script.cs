@@ -10,7 +10,7 @@ public class Mario_Script : MonoBehaviour
     private bool Turn_around = false;
     private float Speed = 0;
     private float Run_Jump = 0;
-    private float pre_y = -7.975002f;
+    private float gra_down = 4;
     private bool Touch_Ground = true;
     private bool Change = false;
     private bool Jump = false;
@@ -32,7 +32,7 @@ public class Mario_Script : MonoBehaviour
         animations.SetBool("Touch_Ground", Touch_Ground);
         animations.SetBool("Change", Change);
         animations.SetBool("Jump", Jump);
-        pre_y = body.velocity.y;
+        
         Jump_Up();  
     }
 
@@ -49,11 +49,7 @@ public class Mario_Script : MonoBehaviour
         Run_Jump = Speed;
         if (Horizontal_Move > 0 && Turn_around) Change_Direct();
         if (Horizontal_Move < 0 && !Turn_around) Change_Direct();
-        if (Speed == 0 )
-        {
-            Jump = false;
-            //Touch_Ground = true;
-        }
+
     }
 
     public void Change_Direct()
@@ -66,8 +62,7 @@ public class Mario_Script : MonoBehaviour
 
     public void Jump_Up()
     {
-        
-        if (Input.GetKeyDown(KeyCode.Space) && Touch_Ground && Jump == false)
+        if (Input.GetKeyDown(KeyCode.UpArrow) && Touch_Ground && !Jump)
         {
             Jump = true;
             Touch_Ground = false;
@@ -75,12 +70,33 @@ public class Mario_Script : MonoBehaviour
             {
                 Run_Jump = 4;
             }
+            if (Run_Jump < 3)
+            {
+                Run_Jump += 2;
+            }
             body.AddForce((Vector2.up) * Run_Jump * 100);
         }
-        if (body.velocity.y == pre_y)
+        if (body.velocity.y < 0)
         {
-            Touch_Ground = true;
+            print("DOWN");
+            body.velocity += Vector2.up * Physics2D.gravity.y * (gra_down - 1) * Time.deltaTime;
         }
+        if (body.velocity.y >= 0 && Input.GetKey(KeyCode.UpArrow))
+        {
+            // Gravity = default
+        }
+    }
+
+    public void OnTriggerEnter2D(Collider2D collision)
+    {
+        Touch_Ground = true;
+        Jump = false;
+    }
+
+    public void OnTriggerStay2D(Collider2D collision)
+    {
+        Jump = false;
+        Touch_Ground = true;
     }
 
 }
